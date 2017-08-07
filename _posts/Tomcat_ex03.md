@@ -1,27 +1,12 @@
----
-layout: post
-title: "Tomcat_exe03"
-description: "The first 'Tomcat_exe03' post for Simple Texture theme."
-categories: [Tomcat_exercise]
-tags: [random, wsy]
-redirect_from:
-  - /2017/08/7/
----
-				How Tomcat works--ex03（一）
-  
-  连接器这一章节，程序可以划分为：启动程序（Bootstrap）、连接器（HttpConnector）、请求处理（HttpProcessor）、请求（HttpRequest）、响应
-(HttpResponse),以及请求响应的一些支持类，外观类。
-  连接器类使用BIO的方式创建服务套接字并实现Runnable接口，循环执行run方法，等待客户端请求，调用accept方法获取一个套接字，创建处理类HttpP
-rofessor，调用process方法处理请求。在process方法中会创建request，response对象，解析Http请求第一行并将解析出的method，uri，protocol填充到
-request对象中，然后再解析请求首部信息，将请求首部也填充到request对象中，再把request和response对象传给相应的静态资源处理类或者Servlet资源
-处理类来处理。
-  request请求解析过程中有几个重要的类：HttpRequestLine、HttpHeader、ServletInputStream。在ServletInputStream中有2个方法：readRequestLine
-和readHeader方法，都分别传入参数HttpRequestLine、HttpHeader。HttpRequestLine中维护三个char数组和三个int型变量，每个数组和变量分别存储met
-hod，uri，protocol的字符和字符长度。根据Http/0.9、Http/1.0、Http/1.1请求的第一行的特征我们可以很轻松的截取到相应的部分存储到HttpRequestL
-ine对象当中。
-
+连接器这一章节，程序可以划分为：启动程序（Bootstrap）、连接器（HttpConnector）、请求处理（HttpProcessor）、请求（HttpRequest）、响应(HttpResponse),以及请求响应的一些支持类，外观类。
+***
+  连接器类使用BIO的方式创建服务套接字并实现Runnable接口，循环执行run方法，等待客户端请求，调用accept方法获取一个套接字，创建处理类HttpProfessor，调用process方法处理请求。在process方法中会创建request，response对象，解析Http请求第一行并将解析出的method，uri，protocol填充到request对象中，然后再解析请求首部信息，将请求首部也填充到request对象中，再把request和response对象传给相应的静态资源处理类或者Servlet资源处理类来处理。
+  ***
+  request请求解析过程中有几个重要的类：HttpRequestLine、HttpHeader、ServletInputStream。在ServletInputStream中有2个方法：readRequestLine和readHeader方法，都分别传入参数HttpRequestLine、HttpHeader。HttpRequestLine中维护三个char数组和三个int型变量，每个数组和变量分别存储method，uri，protocol的字符和字符长度。根据Http/0.9、Http/1.0、Http/1.1请求的第一行的特征我们可以很轻松的截取到相应的部分存储到HttpRequestLine对象当中。
+### readRequestLine代码
+``` java
   // 解析请求行封装到requestLine
-	public void readRequestLine(HttpRequestLine requestLine) throws IOException {
+  public void readRequestLine(HttpRequestLine requestLine) throws IOException {
 		// 去除CRLF
 		int chr = 0;
 		do {
@@ -118,9 +103,12 @@ ine对象当中。
 		}
 		requestLine.protocolEnd = readCount;
 	}
-    而另一个方法readHeader则是将请求首部的name： value格式的属性截取下来存储到HttpHeader对象中（一个属性对应一个对象由HttpProcessor的parse
-  Headers来创建每个对象）。
-	public void readHeader(HttpHeader header) throws IOException {
+```
+***
+而另一个方法readHeader则是将请求首部的name： value格式的属性截取下来存储到HttpHeader对象中（一个属性对应一个对象由HttpProcessor的parseHeaders来创建每个对象）。
+### readHeader代码
+```java
+public void readHeader(HttpHeader header) throws IOException {
 		if (header.keyEnd != 0) {
 			header.recycle();
 		}
@@ -236,3 +224,4 @@ ine对象当中。
 		}
 		header.valueEnd = readCount;
 	}
+```
